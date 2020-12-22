@@ -15,7 +15,15 @@
 //#define DHTTYPE DHT11   // DHT 11
 #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
 //#define DHTTYPE DHT21   // DHT 21 (AM2301)
-
+const int relayOne = 2; //Relay One
+const int relayTwo = 7; //Relay Two
+const int relayThree = 8; //Relay Three
+const int relayFour = 10;
+const int buttonPin = 3;    // the number of the pushbutton pin
+int buttonState;             // the current reading from the input pin
+int lastButtonState = LOW;   // the previous reading from the input pin
+unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
 // Connect pin 1 (on the left) of the sensor to +5V
 // NOTE: If using a board with 3.3V logic like an Arduino Due connect pin 1
 // to 3.3V instead of 5V!
@@ -29,23 +37,26 @@
 // as the current DHT reading algorithm adjusts itself to work on faster procs.
 
 //VH Sensor Pin
-const int VhSensorPin = A0;
+//const int VhSensorPin = A0;
 
 DHT dht(DHTPIN, DHTTYPE);
 
 void setup() {
   
   Serial.begin(9600);
-  pinMode(VhSensorPin,INPUT);
+  //pinMode(VhSensorPin,INPUT);
   Serial.println(F("Go Gophers!!"));
   dht.begin();
+  pinMode(relayFour, OUTPUT);
+  digitalWrite(relayFour, LOW);
+  pinMode(buttonPin, INPUT);
   }
 
 
 void loop() {
   // Wait a few seconds between measurements.
   delay(5000);
-
+ 
   // Reading temperature or humidity takes about 250 milliseconds!
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   float h = dht.readHumidity();
@@ -76,11 +87,39 @@ void loop() {
   // Serial.print(F("°C "));
   // Serial.print(hif);
  //  Serial.println(F("°F"));
+ int reading = digitalRead(buttonPin);
+ Serial.println(reading);
+ Serial.println(buttonState);
+ 
+  if (reading != lastButtonState) {
+    // reset the debouncing timer
+    lastDebounceTime = millis();
+  }
 
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    // whatever the reading is at, it's been there for longer than the debounce
+    // delay, so take it as the actual current state:
+
+    // if the button state has changed:
+    if (reading != buttonState) {
+      buttonState = reading;
+
+      // only toggle the LED if the new button state is HIGH
+//      if (buttonState == HIGH) {
+//        ledState = !ledState;
+//      }
+    }
+  }
+    if(h >= 39 && buttonState == HIGH){
+       digitalWrite(relayFour, HIGH);
+    }else {
+      digitalWrite(relayFour, LOW);
+    }
+     
 
  /* 
   *  VHC Code starts here
-  */
+
   float voltage;
   float Moisture;
   float VWC;
@@ -88,7 +127,7 @@ void loop() {
   
   Serial.print("VWC: ");
   Serial.println(VWC);
-
+  */
 
 }
 
