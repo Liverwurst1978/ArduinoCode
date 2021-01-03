@@ -86,9 +86,9 @@ int modePin = 9;
 //LINE BUFFER FOR TEXT ON THE CLIENT
 //It is 80 characters long
 
-//char linebuf[80];
+char linebuf[80];
 //keept count of characters
-//int charcount=0;
+int charcount=0;
 
 //keep trach of current humidity
 
@@ -257,8 +257,8 @@ void loop() {
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
-        // linebuf[charcount]=c;
-     //   if (charcount<sizeof(linebuf)-1) charcount++;
+         linebuf[charcount]=c;
+        if (charcount<sizeof(linebuf)-1) charcount++;
         Serial.write(c);
         
         // if you've gotten to the end of the line (received a newline
@@ -334,8 +334,8 @@ void loop() {
             client.println("0=Water Level LOW, 1=Water Level OK");
             client.println("</code>");
             client.println("<hr />");
-            client.println("<div><a href=\"/humidon\"><button>ON</button></a></div>");
-            client.println("<div><a href=\"/humidoff\"><button>OFF</button></a></div>");
+           
+            client.println("<div><a href=\"/basenumber\"><input type=\"number\"></a></div>");
 
 
   
@@ -349,8 +349,13 @@ void loop() {
           break;
         }
         if (c == '\n') {
+           
           // you're starting a new line
+          Serial.print("Linebuf: ");
+          Serial.println(linebuf);
+        
           currentLineIsBlank = true;
+          
         } else if (c != '\r') {
         
           // you've gotten a character on the current line
